@@ -58,6 +58,11 @@
             width: 100%;
             font-size: 16px;
             margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .submit-btn:active {
+            opacity: 0.8;
         }
 
         .registration-info {
@@ -86,6 +91,60 @@
             font-size: 16px;
         }
 
+        .custom-confirm {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .confirm-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .confirm-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+            transition: opacity 0.2s;
+        }
+
+        .confirm-btn:active {
+            opacity: 0.8;
+        }
+
+        .confirm-ok {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .confirm-cancel {
+            background-color: #004a9d;
+            color: white;
+        }
+
         @media (max-width: 480px) {
             body {
                 margin: 10px;
@@ -105,6 +164,9 @@
             .time-footer {
                 font-size: 14px;
                 padding: 12px;
+            }
+            .confirm-box {
+                padding: 20px;
             }
         }
     </style>
@@ -137,6 +199,17 @@
 
     <div class="time-footer" id="currentTime"></div>
 
+    <!-- 自定义确认对话框 -->
+    <div class="custom-confirm" id="customConfirm">
+        <div class="confirm-box">
+            <p style="margin: 0 0 20px 0; font-size: 16px;">确认要注销当前施工登记吗？</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-cancel" id="confirmCancel">取消</button>
+                <button class="confirm-btn confirm-ok" id="confirmOk">确认</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 实时时间更新
         function updateTime() {
@@ -158,7 +231,7 @@
         function handleRegistration() {
             const name = document.getElementById('workerName').value;
             if (!name.trim()) {
-                alert("请输入施工人员姓名");
+                showMessage("请输入施工人员姓名");
                 return;
             }
 
@@ -181,15 +254,59 @@
 
         // 注销处理
         function handleLogout() {
-            if (confirm("确认要注销当前施工登记吗？")) {
+            const confirmDialog = document.getElementById('customConfirm');
+            confirmDialog.style.display = 'flex';
+            
+            document.getElementById('confirmOk').onclick = function() {
+                confirmDialog.style.display = 'none';
                 document.getElementById('registrationInfo').style.display = 'none';
-                alert("施工登记已成功注销！");
-            }
+                showMessage("施工登记已成功注销！");
+            };
+            
+            document.getElementById('confirmCancel').onclick = function() {
+                confirmDialog.style.display = 'none';
+            };
+        }
+
+        // 显示临时消息
+        function showMessage(msg) {
+            const msgBox = document.createElement('div');
+            msgBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.9);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 5px;
+                z-index: 1001;
+                font-size: 14px;
+                pointer-events: none;
+                animation: fadeOut 1.5s forwards;
+            `;
+            msgBox.textContent = msg;
+            document.body.appendChild(msgBox);
+            
+            setTimeout(() => {
+                document.body.removeChild(msgBox);
+            }, 1500);
         }
 
         // 初始化时间显示
         updateTime();
         setInterval(updateTime, 1000);
+
+        // 添加动画关键帧
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                0% { opacity: 1; }
+                70% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
