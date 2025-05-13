@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京地铁故障抢险平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0E42D2',
+                        accent: '#36CFC9',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(90deg, #0E42D2 0%, #165DFF 100%);
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-gradient-blue text-white shadow-lg relative z-10">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i class="fa-solid fa-subway text-3xl mr-3 text-white/90"></i>
+                    <h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-bold tracking-tight text-shadow">
+                        北京地铁运营二分公司郭公庄实训基地抢险平台
+                    </h1>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <p id="current-time" class="text-white font-medium text-[clamp(1rem,2vw,1.2rem)]">
+                        加载中...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 状态概览 -->
+        <section class="mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-dark">当前告警</h2>
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <i class="fa-solid fa-exclamation-triangle mr-1"></i> 紧急
+                        </span>
+                    </div>
+                    <div class="text-4xl font-bold text-red-500 mb-2">3</div>
+                    <p class="text-gray-500 text-sm">较昨日 <span class="text-red-500">+1</span></p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-dark">处理中故障</h2>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <i class="fa-solid fa-cog mr-1"></i> 进行中
+                        </span>
+                    </div>
+                    <div class="text-4xl font-bold text-yellow-500 mb-2">7</div>
+                    <p class="text-gray-500 text-sm">较昨日 <span class="text-green-500">-2</span></p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-dark">已解决故障</h2>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <i class="fa-solid fa-check-circle mr-1"></i> 已完成
+                        </span>
+                    </div>
+                    <div class="text-4xl font-bold text-green-500 mb-2">12</div>
+                    <p class="text-gray-500 text-sm">较昨日 <span class="text-green-500">+5</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 告警列表 -->
+        <section class="mb-10">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-dark">最新告警信息</h2>
+                    <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-refresh mr-2"></i> 刷新
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">告警时间</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">线路</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">位置</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-05-13 08:45:12</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">14号线</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">郭公庄站-大瓦窑站区间</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        供电故障
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        处理中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary hover:text-secondary cursor-pointer transition-colors duration-150">
+                                    查看详情
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-05-13 07:32:47</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">房山线</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">郭公庄站</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                        信号故障
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        处理中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary hover:text-secondary cursor-pointer transition-colors duration-150">
+                                    查看详情
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-05-13 06:15:33</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">9号线</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">丰台东大街站</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        通信故障
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        待处理
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-primary hover:text-secondary cursor-pointer transition-colors duration-150">
+                                    查看详情
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="flex justify-between items-center mt-6">
+                    <p class="text-sm text-gray-500">显示 1-3 条，共 3 条</p>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-1 border border-primary bg-primary text-white rounded-md">1</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 抢险资源分布 -->
+        <section>
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-dark mb-6">抢险资源分布</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <div class="relative h-[300px] bg-gray-100 rounded-lg overflow-hidden">
+                            <img src="https://picsum.photos/800/400" alt="北京地铁线路图" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-dark/30">
+                                <p class="text-white font-bold text-lg">地铁线路图加载中...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="h-[300px] flex flex-col">
+                            <h3 class="text-lg font-semibold text-dark mb-4">资源状态</h3>
+                            <div class="flex-grow overflow-y-auto">
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700">抢险人员</span>
+                                        <span class="text-sm font-medium text-primary">42/50</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-primary h-2.5 rounded-full" style="width: 84%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700">抢修车辆</span>
+                                        <span class="text-sm font-medium text-yellow-500">7/10</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700">应急物资</span>
+                                        <span class="text-sm font-medium text-green-500">92/100</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700">通讯设备</span>
+                                        <span class="text-sm font-medium text-red-500">15/20</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-red-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="bg-dark text-white py-6 mt-10">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm text-gray-400">北京地铁运营二分公司郭公庄实训基地 © 2025</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-150">
+                        <i class="fa-solid fa-phone"></i>
+                        <span class="ml-1">应急电话</span>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-150">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <span class="ml-1">平台信息</span>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-150">
+                        <i class="fa-solid fa-question-circle"></i>
+                        <span class="ml-1">帮助中心</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 悬浮按钮 -->
+    <div class="fixed bottom-6 right-6">
+        <button class="bg-primary hover:bg-secondary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+            <i class="fa-solid fa-plus text-xl"></i>
+        </button>
+    </div>
+
+    <script>
+        // 更新当前时间
+        function updateCurrentTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const timeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // 初始化时间并设置定时器每秒更新
