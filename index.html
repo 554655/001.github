@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京地铁抢险平台</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            color: #004a9d;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .registration-form {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #004a9d;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .registration-info {
+            background-color: #e8f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .warning {
+            color: #ff4444;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .time-footer {
+            text-align: center;
+            color: #666;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 16px;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                margin: 10px;
+            }
+            .header h1 {
+                font-size: 20px;
+                margin: 5px 0;
+            }
+            .form-input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .submit-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+            .time-footer {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>北京地铁运营二分公司郭公庄实训基地抢险平台</h1>
+    </div>
+
+    <div class="main-content">
+        <div class="registration-form">
+            <input type="text" 
+                   class="form-input" 
+                   id="workerName" 
+                   placeholder="请输入施工人员姓名">
+            <button class="submit-btn" onclick="handleRegistration()">施工登记</button>
+            
+            <div id="registrationInfo" class="registration-info" style="display: none;">
+                <h3 style="margin: 0 0 15px 0;">施工登记信息</h3>
+                <p>人员姓名：<span id="displayName"></span></p>
+                <p>登记时间：<span id="registrationTime"></span></p>
+                <p class="warning">您已成功进行施工登记，施工结束后请及时注销！</p>
+                <button class="submit-btn" onclick="handleLogout()" 
+                        style="background-color: #ff4444;">
+                    施工注销
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="time-footer" id="currentTime"></div>
+
+    <script>
+        // 实时时间更新
+        function updateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('currentTime').innerHTML = 
+                "当前时间：" + now.toLocaleString('zh-CN', options).replace(/\//g, '-');
+        }
+
+        // 施工登记处理
+        function handleRegistration() {
+            const name = document.getElementById('workerName').value;
+            if (!name.trim()) {
+                alert("请输入施工人员姓名");
+                return;
+            }
+
+            const now = new Date();
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('registrationTime').textContent = 
+                now.toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false 
+                }).replace(/\//g, '-');
+
+            document.getElementById('registrationInfo').style.display = 'block';
+            document.getElementById('workerName').value = '';
+        }
+
+        // 注销处理
+        function handleLogout() {
+            if (confirm("确认要注销当前施工登记吗？")) {
+                document.getElementById('registrationInfo').style.display = 'none';
+                alert("施工登记已成功注销！");
+            }
+        }
+
+        // 初始化时间显示
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
